@@ -7,6 +7,9 @@ export const register = catchAsync(async (req: Request, res: Response, _next: Ne
 
     const newUser = await registerService(body)
 
+    const { ...userData } = newUser;
+    delete (userData as any).password;
+
     res.status(200).json({
         status: 'success',
         message: 'Berhasil melakukan Registrasi, silahkan login',
