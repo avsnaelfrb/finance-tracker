@@ -1,0 +1,8 @@
+import 'dotenv/config'
+import app from './app.js'
+
+const port = Number(process.env.PORT_BE) || 5000
+
+app.listen(port, () => {
+    console.log(`Server run on port http://localhost:${port}`);
+})
