@@ -1,3 +1,6 @@
+import { eq } from "drizzle-orm";
+import { db } from "../config/dbConfig.js";
+import { users } from "../models/schema.js";
 import AppError from "../utils/appError.js";
 import bcrypt from "bcrypt";
 
@@ -11,11 +14,13 @@ export const registerService = async (data: userReq) => {
         throw new AppError('Nama harus lebih dari 5 huruf', 400)
     }
 
-    const existUser = await prisma.user.findUnique({
-        where: { email: data.email }
-    })
+    const existingUsers = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, data.email))
+        .limit(1);
 
-    if (existUser) {
+    if (existingUsers.length > 0) {
         throw new AppError('Email sudah terdaftar, silahkan login atau daftar dengan email lain', 400)
     }
 
@@ -24,13 +29,15 @@ export const registerService = async (data: userReq) => {
     }
 
     const salt = await bcrypt.genSalt(10)
-    const hashedPassword = await bcrypt.hash(salt, data.password)
+    const hashedPassword = await bcrypt.hash(data.password, salt)
 
-    return await prisma.user.create({
-        data: {
-            name: data.name,
-            email: data.email,
-            password: hashedPassword
-        }
+    await db.insert(users).values({
+        name: data.name,
+        email: data.email,
+        password: hashedPassword
     })
+
+    const [newUser] = await db.select().from(users).where(eq(users.email, data.email)).limit(1)
+
+    return newUser;
 }
