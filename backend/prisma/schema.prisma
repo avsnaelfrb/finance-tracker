@@ -12,3 +12,128 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+// --------------------------------------
+// ENUMS (Tipe Data Tetap)
+// --------------------------------------
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum AccountType {
+  CASH          // Tunai/Dompet
+  BANK          // Rekening Bank
+  CREDIT_CARD   // Kartu Kredit
+  WALLET        // E-Wallet (Gopay, OVO, dll)
+  INVESTMENT    // Investasi
+}
+
+enum TransactionType {
+  INCOME        // Pemasukan
+  EXPENSE       // Pengeluaran
+  TRANSFER      // Transfer antar akun
+}
+
+// --------------------------------------
+// MODELS
+// --------------------------------------
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relasi
+  accounts     Account[]
+  categories   Category[]
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@map("users")
+}
+
+model Account {
+  id             String      @id @default(uuid())
+  name           String      
+  type           AccountType @default(CASH)
+  balance        Decimal     @default(0.00) @db.Decimal(15, 2) 
+  currency       String      @default("IDR")
+  userId         String
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  // Relasi
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions         Transaction[] @relation("AccountTransactions") 
+  transferDestinations Transaction[] @relation("TransferDestination")
+
+  @@map("accounts")
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   
+  icon      String?  
+  type      TransactionType 
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relasi
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@map("categories")
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  amount      Decimal         @db.Decimal(15, 2)
+  date        DateTime        @default(now())
+  description String?         @db.Text
+  type        TransactionType
+
+  // Foreign Keys
+  userId           String
+  accountId        String
+  categoryId       String?   // Nullable jika tipe TRANSFER
+  targetAccountId  String?   // Hanya diisi jika tipe TRANSFER (Akun tujuan)
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Relasi
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account       Account  @relation("AccountTransactions", fields: [accountId], references: [id], onDelete: Cascade)
+  category      Category? @relation(fields: [categoryId], references: [id])
+  
+  // Relasi khusus untuk Transfer (Akun Tujuan)
+  targetAccount Account? @relation("TransferDestination", fields: [targetAccountId], references: [id])
+
+  @@map("transactions")
+}
+
+model Budget {
+  id         String   @id @default(uuid())
+  amount     Decimal  @db.Decimal(15, 2) // Batas anggaran
+  startDate  DateTime
+  endDate    DateTime
+  userId     String
+  categoryId String
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relasi
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@map("budgets")
+}
