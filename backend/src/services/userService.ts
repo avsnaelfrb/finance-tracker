@@ -1,5 +1,4 @@
 import AppError from "../utils/appError.js";
-import prisma from "../config/prismaConfig.js";
 import bcrypt from "bcrypt";
 
 export interface userReq {
