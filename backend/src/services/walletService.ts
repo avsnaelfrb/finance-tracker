@@ -27,7 +27,7 @@ export const createWalletService = async (data: ReqWallet, userId: UserPayload['
         throw new AppError('Harap masukkan tipe akun dompet anda', 400)
     }
 
-    if (data.type !== 'CASH' || 'BANK' || 'CREDIT_CARD' || 'WALLET' || 'INVESTMENT' ) {
+    if (data.type !== "CASH" || "BANK" || "CREDIT_CARD" || "WALLET" || 'INVESTMENT' ) {
         throw new AppError('Masukkan type account yang valid', 400)
     }
 
