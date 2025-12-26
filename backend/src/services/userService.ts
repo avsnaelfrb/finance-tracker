@@ -5,13 +5,19 @@ import AppError from "../utils/appError.js";
 import bcrypt from "bcrypt";
 
 export interface userReq {
-    name: string;
+    name?: string;
     email: string;
     password: string;
 }
+
 export const registerService = async (data: userReq) => {
-    if (data.name.length <= 5) {
-        throw new AppError('Nama harus lebih dari 5 huruf', 400)
+    const username = data.name
+    if (username != undefined) {        
+        if (username.length <= 0) {
+            throw new AppError('Harap masukkan username', 400)
+        } else if (username.length <= 4) {
+            throw new AppError('Username minimal 5 huruf', 400)
+        }
     }
 
     const existingUsers = await db
