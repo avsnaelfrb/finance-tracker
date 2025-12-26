@@ -54,5 +54,8 @@ export const createWalletService = async (data: ReqWallet, userId: UserPayload['
         userId: userId
     })
 
-    return result
+    const insertId = result[0].insertId;
+    const [newAccount] = await db.select().from(accounts).where(eq(accounts.id, insertId)).limit(1)
+
+    return newAccount
 }
