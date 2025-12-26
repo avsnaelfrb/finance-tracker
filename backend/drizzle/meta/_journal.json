@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1766708471197,
+      "tag": "0000_wide_gressill",
+      "breakpoints": true
+    }
+  ]
+}

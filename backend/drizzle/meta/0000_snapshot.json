@@ -1,0 +1,485 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "5",
+  "dialect": "mysql",
+  "tables": {
+    "accounts": {
+      "name": "accounts",
+      "columns": {
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "default": "'''CASH'''",
+          "autoincrement": false,
+          "name": "type",
+          "type": "enum('CASH','BANK','CREDIT_CARD','WALLET','INVESTMENT')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "balance": {
+          "default": "'0.00'",
+          "autoincrement": false,
+          "name": "balance",
+          "type": "decimal(15,2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "default": "'''IDR'''",
+          "autoincrement": false,
+          "name": "currency",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "autoincrement": false,
+          "name": "userId",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "'current_timestamp(3)'",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {},
+      "foreignKeys": {
+        "accounts_userId_fkey": {
+          "name": "accounts_userId_fkey",
+          "tableFrom": "accounts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "budgets": {
+      "name": "budgets",
+      "columns": {
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "autoincrement": false,
+          "name": "amount",
+          "type": "decimal(15,2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "startDate": {
+          "autoincrement": false,
+          "name": "startDate",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "endDate": {
+          "autoincrement": false,
+          "name": "endDate",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "autoincrement": false,
+          "name": "userId",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "categoryId": {
+          "autoincrement": false,
+          "name": "categoryId",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "'current_timestamp(3)'",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {},
+      "foreignKeys": {
+        "budgets_categoryId_fkey": {
+          "name": "budgets_categoryId_fkey",
+          "tableFrom": "budgets",
+          "tableTo": "categories",
+          "columnsFrom": [
+            "categoryId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "budgets_userId_fkey": {
+          "name": "budgets_userId_fkey",
+          "tableFrom": "budgets",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "categories": {
+      "name": "categories",
+      "columns": {
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "icon": {
+          "default": "'NULL'",
+          "autoincrement": false,
+          "name": "icon",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "autoincrement": false,
+          "name": "type",
+          "type": "enum('INCOME','EXPENSE','TRANSFER')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "autoincrement": false,
+          "name": "userId",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "'current_timestamp(3)'",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {},
+      "foreignKeys": {
+        "categories_userId_fkey": {
+          "name": "categories_userId_fkey",
+          "tableFrom": "categories",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "transactions": {
+      "name": "transactions",
+      "columns": {
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "autoincrement": false,
+          "name": "amount",
+          "type": "decimal(15,2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "default": "'current_timestamp(3)'",
+          "autoincrement": false,
+          "name": "date",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "default": "'NULL'",
+          "autoincrement": false,
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "type": {
+          "autoincrement": false,
+          "name": "type",
+          "type": "enum('INCOME','EXPENSE','TRANSFER')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId": {
+          "autoincrement": false,
+          "name": "userId",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "accountId": {
+          "autoincrement": false,
+          "name": "accountId",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "categoryId": {
+          "default": "'NULL'",
+          "autoincrement": false,
+          "name": "categoryId",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "targetAccountId": {
+          "default": "'NULL'",
+          "autoincrement": false,
+          "name": "targetAccountId",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "createdAt": {
+          "default": "'current_timestamp(3)'",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {},
+      "foreignKeys": {
+        "transactions_accountId_fkey": {
+          "name": "transactions_accountId_fkey",
+          "tableFrom": "transactions",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "accountId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        },
+        "transactions_categoryId_fkey": {
+          "name": "transactions_categoryId_fkey",
+          "tableFrom": "transactions",
+          "tableTo": "categories",
+          "columnsFrom": [
+            "categoryId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "transactions_targetAccountId_fkey": {
+          "name": "transactions_targetAccountId_fkey",
+          "tableFrom": "transactions",
+          "tableTo": "accounts",
+          "columnsFrom": [
+            "targetAccountId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "cascade"
+        },
+        "transactions_userId_fkey": {
+          "name": "transactions_userId_fkey",
+          "tableFrom": "transactions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "userId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "cascade"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "users": {
+      "name": "users",
+      "columns": {
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "autoincrement": false,
+          "name": "email",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "autoincrement": false,
+          "name": "password",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "default": "'NULL'",
+          "autoincrement": false,
+          "name": "name",
+          "type": "varchar(191)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role": {
+          "default": "'''USER'''",
+          "autoincrement": false,
+          "name": "role",
+          "type": "enum('USER','ADMIN')",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "createdAt": {
+          "default": "'current_timestamp(3)'",
+          "autoincrement": false,
+          "name": "createdAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updatedAt": {
+          "autoincrement": false,
+          "name": "updatedAt",
+          "type": "datetime(3)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {},
+      "foreignKeys": {},
+      "uniqueConstraints": {
+        "users_email_key": {
+          "name": "users_email_key",
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    }
+  },
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {},
+    "indexes": {}
+  }
+}
