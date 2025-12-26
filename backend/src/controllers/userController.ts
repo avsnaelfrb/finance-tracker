@@ -10,7 +10,7 @@ export const register = catchAsync(async (req: Request, res: Response, _next: Ne
     const { ...userData } = newUser;
     delete (userData as any).password;
 
-    res.status(200).json({
+    res.status(201).json({
         status: 'success',
         message: 'Berhasil melakukan Registrasi, silahkan login',
         data: newUser
