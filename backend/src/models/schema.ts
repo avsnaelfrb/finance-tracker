@@ -1,5 +1,5 @@
-import { mysqlTable, mysqlSchema, type AnyMySqlColumn, foreignKey, int, varchar, mysqlEnum, decimal, timestamp, date, text, unique } from "drizzle-orm/mysql-core"
-import { sql } from "drizzle-orm"
+import { mysqlTable, mysqlSchema, type AnyMySqlColumn, foreignKey, int, varchar, mysqlEnum, decimal, timestamp, date, text, unique, uniqueIndex } from "drizzle-orm/mysql-core"
+import { relations, sql } from "drizzle-orm"
 
 export const accounts = mysqlTable("accounts", {
 	id: int().autoincrement().notNull(),
@@ -10,14 +10,14 @@ export const accounts = mysqlTable("accounts", {
 	userId: int().notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" } ),
 	createdAt: timestamp({ mode: 'string' }).default('current_timestamp()').notNull(),
 	updatedAt: timestamp({ mode: 'string' }).default('current_timestamp()').notNull(),
-});
+}, (table) => [
+	uniqueIndex('unique_account_name').on(table.userId, table.name) 
+]);
 
 export const budgets = mysqlTable("budgets", {
 	id: int().autoincrement().notNull(),
 	amount: decimal({ precision: 15, scale: 2 }).notNull(),
-	// you can use { mode: 'date' }, if you want to have Date as type for this column
 	startDate: date({ mode: 'string' }).notNull(),
-	// you can use { mode: 'date' }, if you want to have Date as type for this column
 	endDate: date({ mode: 'string' }).notNull(),
 	userId: int().notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" } ),
 	categoryId: int().notNull().references(() => categories.id, { onDelete: "cascade", onUpdate: "cascade" } ),
@@ -38,7 +38,6 @@ export const categories = mysqlTable("categories", {
 export const transactions = mysqlTable("transactions", {
 	id: int().autoincrement().notNull(),
 	amount: decimal({ precision: 15, scale: 2 }).notNull(),
-	// you can use { mode: 'date' }, if you want to have Date as type for this column
 	date: date({ mode: 'string' }).default('current_timestamp()').notNull(),
 	description: text().default('NULL'),
 	type: mysqlEnum(['INCOME','EXPENSE','TRANSFER']).notNull(),
@@ -62,3 +61,65 @@ export const users = mysqlTable("users", {
 (table) => [
 	unique("users_email_key").on(table.email),
 ]);
+
+
+export const accountsRelations = relations(accounts, ({one, many}) => ({
+	user: one(users, {
+		fields: [accounts.userId],
+		references: [users.id]
+	}),
+	transactions_accountId: many(transactions, {
+		relationName: "transactions_accountId_accounts_id"
+	}),
+	transactions_targetAccountId: many(transactions, {
+		relationName: "transactions_targetAccountId_accounts_id"
+	}),
+}));
+
+export const usersRelations = relations(users, ({many}) => ({
+	accounts: many(accounts),
+	budgets: many(budgets),
+	categories: many(categories),
+	transactions: many(transactions),
+}));
+
+export const budgetsRelations = relations(budgets, ({one}) => ({
+	category: one(categories, {
+		fields: [budgets.categoryId],
+		references: [categories.id]
+	}),
+	user: one(users, {
+		fields: [budgets.userId],
+		references: [users.id]
+	}),
+}));
+
+export const categoriesRelations = relations(categories, ({one, many}) => ({
+	budgets: many(budgets),
+	user: one(users, {
+		fields: [categories.userId],
+		references: [users.id]
+	}),
+	transactions: many(transactions),
+}));
+
+export const transactionsRelations = relations(transactions, ({one}) => ({
+	account_accountId: one(accounts, {
+		fields: [transactions.accountId],
+		references: [accounts.id],
+		relationName: "transactions_accountId_accounts_id"
+	}),
+	category: one(categories, {
+		fields: [transactions.categoryId],
+		references: [categories.id]
+	}),
+	account_targetAccountId: one(accounts, {
+		fields: [transactions.targetAccountId],
+		references: [accounts.id],
+		relationName: "transactions_targetAccountId_accounts_id"
+	}),
+	user: one(users, {
+		fields: [transactions.userId],
+		references: [users.id]
+	}),
+}));
