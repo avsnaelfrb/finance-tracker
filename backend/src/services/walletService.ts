@@ -81,8 +81,8 @@ export const createWalletService = async (data: ReqWallet, userId: UserPayload['
             throw new AppError('User tidak ditemukan', 404)
         }
 
-        if (error.code == 'ER_DUP_ENTRY') {
-            throw new AppError('error duplicate unique key', 400)
+        if (error.cause?.code == 'ER_DUP_ENTRY') {
+            throw new AppError('Kamu sudah memiliki wallet dengan nama tersebut, gunakan nama lain', 400)
         }
 
         throw error
