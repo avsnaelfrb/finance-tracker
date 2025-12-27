@@ -22,11 +22,6 @@ enum Type {
 }
 
 export const createWalletService = async (data: ReqWallet, userId: UserPayload['id']) => {
-    const user = await db.select().from(users).where(eq(users.id, userId))
-    if (!user) {
-        throw new AppError('User tidak ditemukan', 404)
-    }
-
     if (data.name == undefined) {
         throw new AppError('Harap masukkan nama dompet anda', 400)
     }
@@ -58,24 +53,38 @@ export const createWalletService = async (data: ReqWallet, userId: UserPayload['
 
     const finalAmount = amount.toFixed(2)
 
-    const result = await db.insert(accounts).values({
-        name: data.name,
-        type: data.type,
-        balance: finalAmount,
-        currency: data.currency,
-        userId: userId
-    })
+    try {
+        const result = await db.insert(accounts).values({
+            name: data.name,
+            type: data.type,
+            balance: finalAmount,
+            currency: data.currency,
+            userId: userId
+        })
+    
+        const newAccount = {
+            id: result[0].insertId,
+            name: data.name,
+            type: data.type,
+            balance: finalAmount,
+            currency: data.currency,
+            userId,
+            createdAt: new Date(), 
+            updatedAt: new Date()
+        }
+    
+        return newAccount
 
-    const newAccount = {
-        id: result[0].insertId,
-        name: data.name,
-        type: data.type,
-        balance: finalAmount,
-        currency: data.currency,
-        userId,
-        createdAt: new Date(), 
-        updatedAt: new Date()
+    } catch (error: any) {
+
+        if (error.code == '1452') {
+            throw new AppError('User tidak ditemukan', 404)
+        }
+
+        if (error.code == 'ER_DUP_ENTRY') {
+            throw new AppError('error duplicate unique key', 400)
+        }
+
+        throw error
     }
-
-    return newAccount
 }
