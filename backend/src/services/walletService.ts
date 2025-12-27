@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../config/dbConfig.js";
 import { accounts, users } from "../models/schema.js";
 import AppError from "../utils/appError.js";
@@ -6,7 +6,6 @@ import Big from "big.js";
 import type { UserPayload } from "../middleware/authMiddleware.js";
 
 export interface ReqWallet {
-    id: number;
     name: string;
     type: Type;
     balance: string;
@@ -87,4 +86,14 @@ export const createWalletService = async (data: ReqWallet, userId: UserPayload['
 
         throw error
     }
+}
+
+export const getByIdService = async(accountId: number, userId: UserPayload['id']) => {
+    const account = await db.select().from(accounts).where(and(eq(accounts.userId, userId), eq(accounts.id, accountId))).limit(1)
+    const result = account[0]
+    if (!result) {
+        throw new AppError(`Kamu tidak memiliki account dengan id ${accountId}`, 404)
+    }
+
+    return result;
 }
