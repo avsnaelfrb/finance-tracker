@@ -4,7 +4,7 @@ import type { NextFunction, Request, Response } from "express";
 import 'dotenv/config'
 import AppError from "../utils/appError.js";
 
-interface UserPayload {
+export interface UserPayload {
     id: number;
     role: string;
     iat?: string;
