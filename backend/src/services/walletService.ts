@@ -13,7 +13,7 @@ export interface ReqWallet {
     currency: string;
 }
 
-enum Type {
+export enum Type {
     CASH = "CASH",
     BANK = "BANK",
     CREDIT_CARD = "CREDIT_CARD",
