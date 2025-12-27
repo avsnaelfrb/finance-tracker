@@ -8,9 +8,17 @@ import type { UserPayload } from "../middleware/authMiddleware.js";
 export interface ReqWallet {
     id: number;
     name: string;
-    type: 'CASH' | 'BANK' | 'CREDIT_CARD' | 'WALLET' | 'INVESTMENT';
+    type: Type;
     balance: string;
     currency: string;
+}
+
+enum Type {
+    CASH = "CASH",
+    BANK = "BANK",
+    CREDIT_CARD = "CREDIT_CARD",
+    WALLET = "WALLET",
+    INVESTMENT = "INVESTMENT" 
 }
 
 export const createWalletService = async (data: ReqWallet, userId: UserPayload['id']) => {
@@ -27,16 +35,16 @@ export const createWalletService = async (data: ReqWallet, userId: UserPayload['
         throw new AppError('Harap masukkan tipe akun dompet anda', 400)
     }
 
-    if (data.type !== "CASH" || "BANK" || "CREDIT_CARD" || "WALLET" || 'INVESTMENT' ) {
+    const validType = Object.values(Type) as string[]
+    if (!validType.includes(data.type as string)) {
         throw new AppError('Masukkan type account yang valid', 400)
     }
 
     const inputSaldo = data.balance
-    const forbiddenChars = ["@", "!", "*", "#", "$", "%", "^", "&", "(", ")", "~", "`", "-", "_", "+", "+", "[", "]", "{", "}", "'", "?", "<", ">", "/", "|"]
+    const whiteList = /^[0-9]+(\.)?([0-9]{1,2})?$/
 
-    const invalidInput = forbiddenChars.some(char => inputSaldo.includes(char))
-    if (invalidInput) {
-        throw new AppError('Hanya boleh menggunakan simbol "." (titik)', 400)
+    if (!whiteList.test(inputSaldo)) {
+        throw new AppError('Format saldo tidak valid', 400)
     }
 
     const amount = new Big(inputSaldo)
@@ -58,8 +66,16 @@ export const createWalletService = async (data: ReqWallet, userId: UserPayload['
         userId: userId
     })
 
-    const insertId = result[0].insertId;
-    const [newAccount] = await db.select().from(accounts).where(eq(accounts.id, insertId)).limit(1)
+    const newAccount = {
+        id: result[0].insertId,
+        name: data.name,
+        type: data.type,
+        balance: finalAmount,
+        currency: data.currency,
+        userId,
+        createdAt: new Date(), 
+        updatedAt: new Date()
+    }
 
     return newAccount
 }
