@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { createWalletService, type ReqWallet } from "../services/walletService.js";
+import { createWalletService, getByIdService, type ReqWallet } from "../services/walletService.js";
 import { catchAsync } from "../utils/catchAsync.js";
 
 export const createWallet = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -11,5 +11,19 @@ export const createWallet = catchAsync(async (req: Request, res: Response, next:
         status: 'success',
         message: 'Berhasil menambahkan akun dompet',
         data: newWallet
+    })
+})
+
+export const getById = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params
+    const userId = req.user?.id!
+    const accountId = Number(id)
+
+    const getAccount = await getByIdService(accountId, userId)
+
+    res.status(200).json({
+        status: 'success',
+        message: 'Berhasil mengambil data account',
+        data: getAccount
     })
 })
