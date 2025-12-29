@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import instance from '@/api';
+import instance from '@/services/api';
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
