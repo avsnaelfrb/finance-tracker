@@ -46,12 +46,12 @@ export const useAuthStore = defineStore( 'auth', () => {
             console.log("Isi Respon Profil:", response.data)
             if (response) {
                 dataUser.value = {
-                    name: response.data.data.user.name,
-                    email: response.data.data.user.email
+                    name: response.data.data.name,
+                    email: response.data.data.email
                 }
             }
         } catch (error) {
-            // userLoggedOut()
+            userLoggedOut()
         } finally {
             isLoading.value = false
         }
