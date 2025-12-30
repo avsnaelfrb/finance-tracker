@@ -8,16 +8,19 @@ const router = createRouter({
       path: '/',
       name: 'home',
       component: HomeView,
+      meta: { layout: 'DefaultLayout' }
     },
     {
       path: '/login',
       name: 'login',
-      component: () => import('@/views/LoginView.vue')
+      component: () => import('@/views/LoginView.vue'),
+      meta: { layout: 'AuthLayout' }
     },
     {
       path: '/register',
       name: 'register',
-      component: () => import('@/views/RegisterView.vue')
+      component: () => import('@/views/RegisterView.vue'),
+      meta: { layout: 'AuthLayout' }
     }
   ],
 })
