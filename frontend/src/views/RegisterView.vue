@@ -1,13 +1,20 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 import instance from '@/services/api';
 import { useRouter } from 'vue-router';
 import { Eye, EyeClosed, Loader2, Lock, Mail, User, User2 } from 'lucide-vue-next';
+import { useAuthStore } from '@/stores/authStores';
+import Swal from 'sweetalert2';
 
 const router = useRouter()
-const username = ref('')
-const email = ref('')
-const password = ref('')
+const auth = useAuthStore()
+
+const formData = reactive({
+  name: '',
+  email: '',
+  password: '',
+})
+
 const errMsg = ref('')
 const isLoading = ref(false)
 const showPassword = ref(false)
@@ -17,16 +24,18 @@ const handleRegister = async () => {
   isLoading.value = true
 
   try {
-    await instance.post('/user/register', {
-      name: username.value,
-      email: email.value,
-      password: password.value
+    await auth.registerUser(formData)
+
+    Swal.fire({
+      icon: "success",
+      title: 'Berhasil Registrasi',
+      text: "Silahkan login",
+      timer: 2500,
+      showConfirmButton: true
     })
     router.push('/login')
   } catch (error: any) {
     errMsg.value = error.response?.data?.message
-  } finally {
-    isLoading.value = false
   }
 }
 </script>
@@ -101,7 +110,7 @@ const handleRegister = async () => {
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <User :size="20" class="text-slate-400" />
                 </div>
-                <input id="name" v-model="username" type="text" required
+                <input id="name" v-model="formData.name" type="text" required
                   class="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition duration-200 ease-in-out"
                   placeholder="Jhon doe">
               </div>
@@ -113,7 +122,7 @@ const handleRegister = async () => {
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Mail :size="20" class="text-slate-400" />
                 </div>
-                <input id="email" v-model="email" type="email" required
+                <input id="email" v-model="formData.email" type="email" required
                   class="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition duration-200 ease-in-out"
                   placeholder="nama@perusahaan.com">
               </div>
@@ -131,7 +140,7 @@ const handleRegister = async () => {
                   <Lock :size="20" class="text-slate-400" />
                 </div>
 
-                <input id="password" v-model="password" :type="showPassword ? 'text' : 'password'" required
+                <input id="password" v-model="formData.password" :type="showPassword ? 'text' : 'password'" required
                   class="appearance-none block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition duration-200 ease-in-out"
                   placeholder="••••••••">
 
