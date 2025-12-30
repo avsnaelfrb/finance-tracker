@@ -3,7 +3,9 @@ import { ref } from 'vue';
 import instance from '@/services/api';
 import { useRouter } from 'vue-router';
 import { Eye, EyeClosed, Lock, Mail } from 'lucide-vue-next';
+import { useAuthStore } from '@/stores/authStores';
 
+const auth = useAuthStore()
 const router = useRouter()
 const email = ref('')
 const password = ref('')
@@ -16,17 +18,19 @@ const handleLogin = async () => {
     isLoading.value = true
 
     try {
-        const response = await instance.post('/user/login', {
-            email: email.value,
-            password: password.value
-        })
-
-        localStorage.setItem('token', response.data.token)
-        router.push('/')
+      const response = await instance.post('/user/login', {
+          email: email.value,
+          password: password.value
+      })
+      console.log("Respon dari Backend:", response.data)
+      const serverResponse = response.data
+        
+      auth.userLoggedIn({name: serverResponse.data.user.name, email: email.value}, serverResponse.data.token)
+      router.push('/')
     } catch (err: any) {
-        errMsg.value = err.response?.data?.message
+      errMsg.value = err.response?.data?.message
     } finally {
-        isLoading.value = false
+      isLoading.value = false
     }
 }
 </script>
