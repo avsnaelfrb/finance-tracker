@@ -76,7 +76,8 @@ export const loginService = async (data: userReq) => {
     const secret = process.env.JWT_SECRET!
     const token = jwt.sign(payload, secret, { expiresIn: '1d' })
     
-    return token;
+    const dataLogin = {user, token}
+    return dataLogin;
 }
 
 export const getByIdService = async (userId: number) => {
