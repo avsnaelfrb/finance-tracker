@@ -8,8 +8,8 @@ import AuthLayout from './layouts/AuthLayout.vue';
 const auth = useAuthStore()
 const route = useRoute()
 
-onMounted(async() => {
-  await auth.initializeToken()
+onMounted(() => {
+  auth.initializeToken()
 })
 
 const layouts: Record<string, any>  = {
