@@ -15,7 +15,7 @@ const handleLogout = () => {
     <div class="min-h-screen bg-gray-50">
         <nav class="bg-white shadow p-4">
             <div class="container mx-auto flex gap-4 items-center">
-                <RouterLink to="/" class="font-bold text-xl">FinTrack</RouterLink>
+                <RouterLink to="/dashboard" class="font-bold text-xl">FinTrack</RouterLink>
                 
                 <div class="flex gap-4 ml-auto">
                     <RouterLink 
