@@ -78,3 +78,9 @@ export const loginService = async (data: userReq) => {
     
     return token;
 }
+
+export const getByIdService = async (userId: number) => {
+    const user = await db.select().from(users).where(eq(users.id, userId)).limit(1)
+    const result = user[0]
+    return result
+}
