@@ -22,7 +22,6 @@ const handleLogin = async () => {
           email: email.value,
           password: password.value
       })
-      console.log("Respon dari Backend:", response.data)
       const serverResponse = response.data
         
       auth.userLoggedIn({name: serverResponse.data.user.name, email: email.value}, serverResponse.data.token)
