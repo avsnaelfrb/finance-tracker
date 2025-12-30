@@ -31,7 +31,7 @@ const handleLogin = async () => {
       showConfirmButton: false
     })
       
-    router.push('/')
+    router.push('/dashboard')
   } catch (err: any) {
     errMsg.value = err.response?.data?.message
   }
