@@ -1,10 +1,16 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { useAuthStore } from './stores/authStores';
+import { computed, onMounted } from 'vue';
 import { RouterView, useRoute } from 'vue-router'
 import DefaultLayout from './layouts/DefaultLayout.vue';
 import AuthLayout from './layouts/AuthLayout.vue';
 
+const auth = useAuthStore()
 const route = useRoute()
+
+onMounted(async() => {
+  await auth.initializeToken()
+})
 
 const layouts: Record<string, any>  = {
   DefaultLayout,
