@@ -2,26 +2,48 @@ import instance from "@/services/api";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 
-interface User {
-    name: string,
-    email: string
-}
 
 export const useAuthStore = defineStore( 'auth', () => {
-    const dataUser = ref<User>({
+    const dataUser = ref({
         name: '',
         email: '',
     })
-    const token = ref('')
+    const token = ref<string>(localStorage.getItem('token') || '')
     const isLoading = ref(false)
 
     const isLoggedIn = computed(() => token.value ? true : false) 
 
-    function userLoggedIn(authUser:User , authToken: string) {
-        dataUser.value = authUser
-        token.value = authToken
+    async function loginUser(payload: any) {
+        isLoading.value = true
+        try {
+            const response = await instance.post('/user/login', payload)
+            const serverResponse = response.data
 
-        localStorage.setItem('token', token.value)
+            token.value = serverResponse.data.token
+            dataUser.value = {
+                name: serverResponse.data.user.name,
+                email: serverResponse.data.user.email
+            }
+
+            localStorage.setItem('token', token.value)
+            return true
+        } catch (error: any) {
+            throw error
+        } finally {
+            isLoading.value = false
+        }
+    }
+
+    async function registerUser(payload: any) {
+        isLoading.value = true
+        try {
+            await instance.post('/user/register', payload)
+            return true
+        } catch (error) {
+            throw error
+        } finally {
+            isLoading.value = false
+        }
     }
 
     function userLoggedOut() {
@@ -57,5 +79,5 @@ export const useAuthStore = defineStore( 'auth', () => {
         }
     }
 
-    return { dataUser, token, isLoggedIn, isLoading, userLoggedIn, userLoggedOut, initializeToken }
+    return { dataUser, token, isLoggedIn, isLoading, loginUser, registerUser, userLoggedOut, initializeToken }
 })
