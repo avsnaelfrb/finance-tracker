@@ -1,21 +1,34 @@
 <script setup lang="ts">
-import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { useAuthStore } from './stores/authStores';
+import { computed, onMounted } from 'vue';
+import { RouterView, useRoute } from 'vue-router'
+import DefaultLayout from './layouts/DefaultLayout.vue';
+import AuthLayout from './layouts/AuthLayout.vue';
 
+const auth = useAuthStore()
 const route = useRoute()
+
+onMounted(() => {
+  auth.initializeToken()
+})
+
+const layouts: Record<string, any>  = {
+  DefaultLayout,
+  AuthLayout
+}
+
+const currentLayout = computed(() => {
+  const layoutName = route.meta.layout as string
+
+  return layouts[layoutName] || DefaultLayout
+})
+
 </script>
 
 <template>
-  <header v-if="route.path !== '/login' && route.path !== '/register'">
-    <div class="wrapper">
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/login">Login</RouterLink>
-        <RouterLink to="/register">Register</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <component :is="currentLayout">
+    <RouterView />
+  </component>
 </template>
 
 <style scoped>

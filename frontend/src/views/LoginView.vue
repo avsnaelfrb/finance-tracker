@@ -1,31 +1,40 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { reactive, ref } from 'vue';
 import instance from '@/services/api';
 import { useRouter } from 'vue-router';
+import { Eye, EyeClosed, Lock, Mail } from 'lucide-vue-next';
+import { useAuthStore } from '@/stores/authStores';
+import Swal from 'sweetalert2';
 
+const auth = useAuthStore()
 const router = useRouter()
-const email = ref('')
-const password = ref('')
+
+const formData = reactive({
+  email : '',
+  password : ''
+})
+
 const errMsg = ref('')
-const isLoading = ref(false)
+const showPassword = ref(false)
 
 const handleLogin = async () => {
-    errMsg.value = ''
-    isLoading.value = true
+  errMsg.value = ''
+    
+  try {
+    await auth.loginUser(formData)
 
-    try {
-        const response = await instance.post('/user/login', {
-            email: email.value,
-            password: password.value
-        })
-
-        localStorage.setItem('token', response.data.token)
-        router.push('/')
-    } catch (err: any) {
-        errMsg.value = err.response?.data?.message
-    } finally {
-        isLoading.value = false
-    }
+    Swal.fire({
+      icon: "success",
+      title: 'Berhasil login',
+      text: "Selamat datang kembali",
+      timer: 5500,
+      showConfirmButton: false
+    })
+      
+    router.push('/dashboard')
+  } catch (err: any) {
+    errMsg.value = err.response?.data?.message
+  }
 }
 </script>
 
@@ -93,14 +102,11 @@ const handleLogin = async () => {
               <label for="email" class="block text-sm font-semibold text-slate-700 mb-1">Email</label>
               <div class="relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-slate-400" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                  </svg>
+                  <Mail :size="20" class="text-slate-400"/>
                 </div>
                 <input 
                   id="email" 
-                  v-model="email" 
+                  v-model="formData.email" 
                   type="email" 
                   required 
                   class="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition duration-200 ease-in-out" 
@@ -113,22 +119,24 @@ const handleLogin = async () => {
             <div>
               <div class="flex items-center justify-between mb-1">
                 <label for="password" class="block text-sm font-semibold text-slate-700">Password</label>
-                <a href="#" class="text-sm font-medium text-brand-600 hover:text-brand-500">Lupa password?</a>
               </div>
+
               <div class="relative">
+
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg class="h-5 w-5 text-slate-400" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
-                  </svg>
+                  <Lock :size="20" class="text-slate-400" />
                 </div>
-                <input 
-                  id="password" 
-                  v-model="password" 
-                  type="password" 
-                  required 
-                  class="appearance-none block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition duration-200 ease-in-out" 
-                  placeholder="••••••••"
-                >
+
+                <input id="password" v-model="formData.password" :type="showPassword ? 'text' : 'password'" required
+                  class="appearance-none block w-full pl-10 pr-10 py-3 border border-slate-200 rounded-xl leading-5 bg-slate-50 text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition duration-200 ease-in-out"
+                  placeholder="••••••••">
+
+                <button type="button" @click="showPassword = !showPassword"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-brand-500 transition-colors">
+                  <Eye v-if="!showPassword" :size="20" />
+                  <EyeClosed v-else :size="20"/>
+                </button>
+
               </div>
             </div>
           </div>
@@ -151,11 +159,11 @@ const handleLogin = async () => {
           <div>
             <button 
               type="submit" 
-              :disabled="isLoading"
+              :disabled="auth.isLoading"
               class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-brand-500/30 transition-all duration-200 transform hover:-translate-y-0.5"
             >
               <span class="absolute left-0 inset-y-0 flex items-center pl-3">
-                <svg v-if="!isLoading" class="h-5 w-5 text-brand-500 group-hover:text-brand-400 transition ease-in-out duration-150" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" viewBox="0 0 20 20" fill="currentColor">
+                <svg v-if="!auth.isLoading" class="h-5 w-5 text-brand-500 group-hover:text-brand-400 transition ease-in-out duration-150" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
                 </svg>
                 <svg v-else class="animate-spin h-5 w-5 text-white" xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" fill="none" viewBox="0 0 24 24">
@@ -163,7 +171,7 @@ const handleLogin = async () => {
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
               </span>
-              {{ isLoading ? 'Memproses...' : 'Masuk ke Akun' }}
+              {{ auth.isLoading ? 'Memproses...' : 'Masuk ke Akun' }}
             </button>
           </div>
         </form>
