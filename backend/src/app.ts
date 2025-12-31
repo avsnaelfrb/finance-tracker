@@ -7,7 +7,7 @@ const app: Application = express()
 const corsOption = {
     origin: '*', 
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
+    credentials: false
 }
 
 app.use(cors(corsOption))
