@@ -5,6 +5,8 @@ import { catchAsync } from "../utils/catchAsync.js";
 export const createWallet = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const body: ReqWallet = req.body;
 
+    // console.log("Header Auth:", req.headers.authorization);
+    // console.log("Isi Req User:", req.user);
     const newWallet = await createWalletService(body, req.user?.id!)
 
     res.status(201).json({
