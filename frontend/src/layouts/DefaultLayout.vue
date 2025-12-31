@@ -15,7 +15,8 @@ import {
     Bell, 
     HelpCircle,
     X, 
-    User
+    User,
+    Wallet
 } from 'lucide-vue-next';
 import { useAuthStore } from '@/stores/authStores';
 import { useRoute, useRouter } from 'vue-router';
@@ -40,7 +41,7 @@ const menuItems = [
     title: 'Utama',
     links: [
         { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-        { name: 'Analitik', icon: PieChart, href: '/analytics'},
+        { name: 'Your Wallets', icon: Wallet, href: '/Wallets'},
         { name: 'Laporan', icon: FileText, href: '/reports'},
     ]
     },
