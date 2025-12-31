@@ -18,10 +18,11 @@ import {
     User
 } from 'lucide-vue-next';
 import { useAuthStore } from '@/stores/authStores';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 
 const auth = useAuthStore()
 const router = useRouter()
+const route = useRoute()
 // State untuk toggle sidebar di mobile
 const isSidebarOpen = ref(false);
 
@@ -38,24 +39,24 @@ const menuItems = [
     {
     title: 'Utama',
     links: [
-        { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard', active: true },
-        { name: 'Analitik', icon: PieChart, href: '/analytics', active: false },
-        { name: 'Laporan', icon: FileText, href: '/reports', active: false },
+        { name: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+        { name: 'Analitik', icon: PieChart, href: '/analytics'},
+        { name: 'Laporan', icon: FileText, href: '/reports'},
     ]
     },
     {
     title: 'Manajemen',
     links: [
-        { name: 'Pengguna', icon: Users, href: '/users', active: false },
-        { name: 'Produk', icon: ShoppingBag, href: '/products', active: false },
-        { name: 'Pesanan', icon: ShoppingCart, href: '/orders', active: false },
+        { name: 'Pengguna', icon: Users, href: '/users'},
+        { name: 'Produk', icon: ShoppingBag, href: '/products'},
+        { name: 'Pesanan', icon: ShoppingCart, href: '/orders'},
     ]
     },
     {
     title: 'Sistem',
     links: [
-        { name: 'Pengaturan', icon: Settings, href: '/settings', active: false },
-        { name: 'Keamanan', icon: Shield, href: '/security', active: false },
+        { name: 'Pengaturan', icon: Settings, href: '/settings'},
+        { name: 'Keamanan', icon: Shield, href: '/security'},
     ]
     }
 ];
@@ -111,18 +112,18 @@ function handleLogout() {
             {{ category.title }}
             </h3>
             
-            <a 
+            <RouterLink 
             v-for="item in category.links" 
             :key="item.name"
-            :href="item.href"
+            :to="item.href"
             class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
-            :class="item.active 
+            :class="route.path === item.href 
                 ? 'bg-brand-50 text-brand-600' 
                 : 'text-gray-600 hover:bg-gray-50 hover:text-dark-900'"
             >
             <component :is="item.icon" class="w-5 h-5" />
             {{ item.name }}
-            </a>
+            </RouterLink>
         </div>
 
         <!-- User Profile (Bottom Sidebar) -->
@@ -130,7 +131,6 @@ function handleLogout() {
             <h3 class="px-4 text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
             Log-out
             </h3>
-            <!-- Mengubah div wrapper menjadi button full-width -->
             <button 
                 type="button"
                 @click="handleLogout()"
@@ -145,7 +145,6 @@ function handleLogout() {
 
                 <!-- 2. User Info (Flexible Width) -->
                 <div class="flex-1 min-w-0">
-                    <!-- Menambahkan group-hover untuk mengubah warna teks saat disorot -->
                     <p class="text-sm font-semibold text-dark-900 truncate group-hover:text-brand-900 transition-colors">
                         {{ auth.dataUser.name }}
                     </p>
@@ -156,7 +155,6 @@ function handleLogout() {
 
                 <!-- 3. Logout Icon (Visual Indicator) -->
                 <div class="shrink-0">
-                    <!-- Icon akan berubah merah saat parent button di-hover -->
                     <LogOut class="w-5 h-5 text-gray-400 group-hover:text-brand-600 transition-colors" />
                 </div>
 
