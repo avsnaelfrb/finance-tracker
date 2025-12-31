@@ -5,9 +5,9 @@ import cors from 'cors'
 
 const app: Application = express()
 const corsOption = {
-    origin: 'http://localhost:5173', 
+    origin: '*', 
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true
+    credentials: false
 }
 
 app.use(cors(corsOption))
