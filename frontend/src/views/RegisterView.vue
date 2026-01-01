@@ -36,6 +36,8 @@ const handleRegister = async () => {
     router.push('/login')
   } catch (error: any) {
     errMsg.value = error.response?.data?.message
+  } finally {
+    isLoading.value = false
   }
 }
 </script>
