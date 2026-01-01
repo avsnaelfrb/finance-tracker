@@ -65,7 +65,7 @@ export const useAuthStore = defineStore( 'auth', () => {
 
         try {
             const response = await instance.get('/user')
-            console.log("Isi Respon Profil:", response.data)
+            // console.log("Isi Respon Profil:", response.data)
             if (response) {
                 dataUser.value = {
                     name: response.data.data.name,

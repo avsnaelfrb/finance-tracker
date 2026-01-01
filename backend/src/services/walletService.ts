@@ -34,14 +34,15 @@ export const createWalletService = async (data: ReqWallet, userId: UserPayload['
         throw new AppError('Masukkan type account yang valid', 400)
     }
 
-    const inputSaldo = data.balance
+    const inputSaldo = data.balance.toString()
     const whiteList = /^[0-9]+(\.)?([0-9]{1,2})?$/
 
     if (!whiteList.test(inputSaldo)) {
         throw new AppError('Format saldo tidak valid', 400)
     }
 
-    const amount = new Big(inputSaldo)
+    const sanitize = inputSaldo.replace(/\./g, '')
+    const amount = new Big(sanitize)
     if (amount.lt(0)) {
         throw new AppError('Saldo tidak boleh mines', 400)
     }

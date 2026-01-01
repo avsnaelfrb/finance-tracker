@@ -29,6 +29,14 @@ const router = createRouter({
         layout: 'AuthLayout',
         isPublic: true
        }
+    },
+    {
+      path: '/wallets',
+      name: 'wallets',
+      component: () => import('@/views/WalletsView.vue'),
+      meta: {
+        layout: 'DefaultLayout',
+      }
     }
   ],
 })
