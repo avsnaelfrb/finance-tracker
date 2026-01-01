@@ -98,3 +98,7 @@ export const getByIdService = async(accountId: number, userId: UserPayload['id']
 
     return result;
 }
+
+export const getAllWallets = async (userId: UserPayload['id']) => {
+    return await db.select().from(accounts).where(eq(accounts.userId, userId))
+}
