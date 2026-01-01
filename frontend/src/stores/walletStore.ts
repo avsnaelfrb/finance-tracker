@@ -8,6 +8,7 @@ export const useWalletStore = defineStore('wallets', () => {
     const errMsg = ref<string | null>('')
     const isLoading = ref(false)
 
+        
     async function createWallet(payload: CreateWalletPayload) {
         isLoading.value = true
         errMsg.value = ''
@@ -18,21 +19,44 @@ export const useWalletStore = defineStore('wallets', () => {
                 ...payload,
                 balance: payload.balance.toString()
             }
-            const response = await instance.post < ApiResponse<{newWallet: Wallet}>>('/wallet/add-wallet', apiPayload)
+            const response = await instance.post < ApiResponse<Wallet>>('/wallet/add-wallet', apiPayload)
             const serverResponse = response.data
 
-            wallets.value.push(serverResponse.data.newWallet)
+            await getAllWallet()
             console.log(serverResponse.message);
             return true
         } catch (error: any) {
             console.error(error);
             
-            errMsg.value = error
+            errMsg.value = error.response?.data?.message
             return false
         } finally {
             isLoading.value = false
         }
     }
 
-    return { wallets, errMsg, isLoading, createWallet }
+    async function getAllWallet() {
+        isLoading.value = true
+        errMsg.value = ''
+
+        try {
+            const apiResponse = await instance.get<ApiResponse<Wallet[]>>('/wallet/all-wallet')
+            //---------------- DEBUG AREA -------------------
+            wallets.value = apiResponse.data.data
+            console.log("1. FULL RESPONSE:", apiResponse);
+            console.log("2. ISI DATA (response.data):", apiResponse.data);
+            console.log("3. DATA.DATA (response.data.data):", apiResponse.data.data);
+            // ----------------------------------------------
+            return true
+        } catch (error: any) {
+            console.error(error);
+            
+            errMsg.value = error.response?.data?.message
+            return false
+        } finally {
+            isLoading.value = false
+        }
+    }
+
+    return { wallets, errMsg, isLoading, createWallet, getAllWallet }
 })
