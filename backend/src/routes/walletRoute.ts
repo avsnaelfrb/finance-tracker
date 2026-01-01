@@ -4,7 +4,7 @@ import { verifyToken } from "../middleware/authMiddleware.js";
 const router = express.Router()
 
 router.post('/add-wallet', verifyToken, createWallet)
-router.get('/:id', verifyToken, getById)
 router.get('/all-wallet', verifyToken, getAll)
+router.get('/:id', verifyToken, getById)
 
 export default router
