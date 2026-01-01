@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { 
     LayoutDashboard, 
     PieChart, 
@@ -20,10 +20,16 @@ import {
 } from 'lucide-vue-next';
 import { useAuthStore } from '@/stores/authStores';
 import { useRoute, useRouter } from 'vue-router';
+import { useWalletStore } from '@/stores/walletStore';
 
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+const walletStore = useWalletStore()
+
+onMounted(() => {
+    walletStore.getAllWallet()
+})
 // State untuk toggle sidebar di mobile
 const isSidebarOpen = ref(false);
 
