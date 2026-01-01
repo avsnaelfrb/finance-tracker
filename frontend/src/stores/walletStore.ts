@@ -1,14 +1,15 @@
 import instance from "@/services/api";
 import type { ApiResponse, CreateWalletPayload, Wallet } from "@/types/globalTypes";
 import { defineStore } from "pinia";
-import { reactive, ref } from "vue";
+import { computed, reactive, ref } from "vue";
 
 export const useWalletStore = defineStore('wallets', () => {
     const wallets = ref<Wallet[]>([])
     const errMsg = ref<string | null>('')
     const isLoading = ref(false)
 
-        
+    const hasWallet = computed(() => wallets.value.length > 0)
+
     async function createWallet(payload: CreateWalletPayload) {
         isLoading.value = true
         errMsg.value = ''
@@ -58,5 +59,5 @@ export const useWalletStore = defineStore('wallets', () => {
         }
     }
 
-    return { wallets, errMsg, isLoading, createWallet, getAllWallet }
+    return { wallets, errMsg, isLoading, hasWallet, createWallet, getAllWallet }
 })
