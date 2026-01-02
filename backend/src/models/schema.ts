@@ -28,7 +28,6 @@ export const budgets = mysqlTable("budgets", {
 export const categories = mysqlTable("categories", {
 	id: int().autoincrement().notNull().primaryKey(),
 	name: varchar({ length: 191 }).notNull(),
-	icon: varchar({ length: 191 }).default('NULL'),
 	type: mysqlEnum(['INCOME','EXPENSE','TRANSFER']).notNull(),
 	userId: int().notNull().references(() => users.id, { onDelete: "cascade", onUpdate: "cascade" } ),
 	createdAt: timestamp('createdAt').defaultNow().notNull(),
