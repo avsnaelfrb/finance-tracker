@@ -9,7 +9,7 @@ export const createCategoryService = async (data: CreateCategoryRequest, userId:
     if (!data.name || !data.type) {
         throw new AppError('Nama atau Type categori tidak boleh kosong', 400)
     }
-    
+
     if (data.type != 'INCOME' && data.type != 'EXPENSE' && data.type != 'TRANSFER') {
         throw new AppError('Type tidak valid', 400)
     }
@@ -23,4 +23,8 @@ export const createCategoryService = async (data: CreateCategoryRequest, userId:
     const insertId = result[0].insertId;
     const newCategory = await db.select().from(categories).where(eq(categories.id, insertId))
     return newCategory
+}
+
+export const getAllCategoryService = async (userId: number) => {
+    return await db.select().from(categories).where(eq(categories.userId, userId))
 }
