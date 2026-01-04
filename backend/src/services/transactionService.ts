@@ -1,26 +1,26 @@
 import { db } from "../config/dbConfig.js";
 import Big from "big.js";
-import type { Account, CreateTransactionDTO, CreateTransactionResult, Transaction } from "../types/transactionType.js";
+import type { CreateTransactionDTO } from "../types/transactionType.js";
 import AppError from "../utils/appError.js";
 import { accounts, transactions } from "../models/schema.js";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { sanitizeCurrency } from "../utils/currencyHeleper.js";
 
 export const createTransactionService = async (data: CreateTransactionDTO, userId: number) => {
     if (!data.accountId) {
         throw new AppError('Harap pilih akun (wallet)', 400);
     }
     
-    // Validasi format angka (opsional, Big.js sebenarnya cukup ketat)
-    // Kita izinkan string angka dengan titik desimal.
     const amountStr = data.amount.toString();
+    const cleanAmount = sanitizeCurrency(amountStr)
     try {
-        const checkBig = new Big(amountStr);
+        const checkBig = new Big(cleanAmount);
         if (checkBig.lte(0)) throw new Error(); 
     } catch (e) {
         throw new AppError('Jumlah transaksi harus berupa angka positif', 400);
     }
 
-    const amount = new Big(amountStr);
+    const amount = new Big(cleanAmount);
 
     const result = await db.transaction(async (tx) => {
         
@@ -30,7 +30,7 @@ export const createTransactionService = async (data: CreateTransactionDTO, userI
             .where(and(eq(accounts.id, data.accountId), eq(accounts.userId, userId)))
             .limit(1);
 
-        const sourceAccount = sourceAccountData[0]; // Ambil object pertama dari array
+        const sourceAccount = sourceAccountData[0]; 
 
         if (!sourceAccount) {
             throw new AppError(`Akun asal tidak ditemukan atau bukan milik anda`, 404);
@@ -40,28 +40,23 @@ export const createTransactionService = async (data: CreateTransactionDTO, userI
         let newSourceBalance: Big;
 
         // --- STEP B: Kalkulasi Saldo Berdasarkan Tipe ---
-        
         if (data.type === 'INCOME') {
             newSourceBalance = currentBalance.plus(amount);
 
         } else if (data.type === 'EXPENSE') {
-            // Cek Saldo Cukup?
             if (currentBalance.lt(amount)) {
                 throw new AppError('Saldo tidak mencukupi untuk pengeluaran ini', 400);
             }
-            // Saldo Berkurang
             newSourceBalance = currentBalance.minus(amount);
 
         } else if (data.type === 'TRANSFER') {
             if (!data.targetAccountId) throw new AppError('Akun tujuan wajib diisi untuk transfer', 400);
             if (data.targetAccountId === data.accountId) throw new AppError('Tidak bisa transfer ke akun yang sama', 400);
 
-            // Cek Saldo Asal Cukup?
             if (currentBalance.lt(amount)) {
                 throw new AppError('Saldo tidak mencukupi untuk transfer', 400);
             }
 
-            // Ambil Akun Tujuan (Validasi juga apakah milik user yg sama)
             const targetAccountData = await tx.select()
                 .from(accounts)
                 .where(and(eq(accounts.id, data.targetAccountId), eq(accounts.userId, userId)))
@@ -73,12 +68,10 @@ export const createTransactionService = async (data: CreateTransactionDTO, userI
                 throw new AppError('Akun tujuan transfer tidak ditemukan', 404);
             }
 
-            // Kalkulasi: Asal Berkurang, Tujuan Bertambah
-            newSourceBalance = currentBalance.minus(amount); // Perbaikan logika
+            newSourceBalance = currentBalance.minus(amount); 
             const targetCurrentBalance = new Big(targetAccount.balance);
             const newTargetBalance = targetCurrentBalance.plus(amount);
 
-            // Update Akun Tujuan
             await tx.update(accounts)
                 .set({ balance: newTargetBalance.toFixed(2) })
                 .where(eq(accounts.id, data.targetAccountId));
@@ -89,7 +82,7 @@ export const createTransactionService = async (data: CreateTransactionDTO, userI
 
         // --- STEP C: Update Akun Asal (Berlaku untuk Income, Expense, & Transfer) ---
         await tx.update(accounts)
-            .set({ balance: newSourceBalance!.toFixed(2) }) // Pastikan string decimal
+            .set({ balance: newSourceBalance!.toFixed(2) }) 
             .where(eq(accounts.id, data.accountId));
 
         // --- STEP D: Insert History Transaksi (HARUS DI DALAM TX) ---
