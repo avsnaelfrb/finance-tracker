@@ -36,3 +36,33 @@ export interface ApiResponse<T> {
   message?: string;
   data: T;
 }
+
+// Transaction type -----------------------------------------------------------------
+
+export type TransactionType = 'INCOME' | 'EXPENSE' | 'TRANSFER';
+
+// Tipe untuk Transaction (berdasarkan tabel transactions)
+export interface Transaction {
+  id: number;
+  amount: string; 
+  date: string; 
+  description: string | null;
+  type: TransactionType;
+  userId: number;
+  accountId: number; 
+  categoryId: number | null;
+  targetAccountId: number | null; 
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Tipe Payload untuk membuat Transaksi baru
+export interface CreateTransactionPayload {
+  amount: number;
+  date: string;
+  description?: string;
+  type: TransactionType;
+  accountId: number;
+  categoryId?: number;
+  targetAccountId?: number;
+}
