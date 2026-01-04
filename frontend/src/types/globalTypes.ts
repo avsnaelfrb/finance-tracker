@@ -66,3 +66,20 @@ export interface CreateTransactionPayload {
   categoryId?: number;
   targetAccountId?: number;
 }
+
+
+// Tipe untuk Category (berdasarkan tabel categories)
+export interface Category {
+  id: number;
+  name: string;
+  type: TransactionType; // Menggunakan enum yang sama dengan Transaction
+  userId: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Tipe Payload untuk membuat Category baru
+export interface CreateCategoryPayload {
+  name: string;
+  type: TransactionType;
+}
