@@ -2,44 +2,32 @@
 import { reactive, computed, onMounted } from 'vue';
 import { useTransactionStore } from '@/stores/transactionStore';
 import { useWalletStore } from '@/stores/walletStore';
+import { useCategoryStore } from '@/stores/categoryStore'; 
 import Swal from 'sweetalert2';
 import { ChevronDown, Wallet as WalletIcon } from 'lucide-vue-next';
-import type { CreateTransactionPayload, TransactionType } from '@/types/globalTypes';
+import type { CreateTransactionPayload, TransactionType, CreateCategoryPayload } from '@/types/globalTypes';
 
 const emit = defineEmits(['close', 'success']);
 
 const transactionStore = useTransactionStore();
 const walletStore = useWalletStore();
+const categoryStore = useCategoryStore(); 
 
-// Default date menggunakan string YYYY-MM-DD agar SQL langsung menerima
 const formData = reactive({
     amount: '',
     type: 'EXPENSE' as TransactionType,
     categoryId: '',
     accountId: '',
-    date: new Date().toISOString().slice(0, 10),
+    date: new Date().toISOString().slice(0, 10), 
     description: ''
 });
 
-// Dummy Categories
+// Computed: Filter kategori sesuai tipe (Pengeluaran/Pemasukan)
 const categories = computed(() => {
-    if (formData.type === 'EXPENSE') {
-        return [
-            { id: 1, name: 'Makanan & Minuman', icon: '🍔' },
-            { id: 2, name: 'Transportasi', icon: '🚗' },
-            { id: 3, name: 'Belanja', icon: 'shopping-bag' },
-            { id: 4, name: 'Tagihan', icon: 'file-text' },
-        ];
-    } else {
-        return [
-            { id: 5, name: 'Gaji', icon: '💵' },
-            { id: 6, name: 'Bonus', icon: 'gift' },
-            { id: 7, name: 'Investasi', icon: 'trending-up' },
-        ];
-    }
+    return categoryStore.categories.filter((cat: any) => cat.type === formData.type);
 });
 
-// Helper Format Rupiah (Tampilan saja)
+// Helper Format Rupiah
 const formatNumber = (n: string) => {
     return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
@@ -49,15 +37,59 @@ const handleAmountInput = (event: Event) => {
     formData.amount = formatNumber(target.value);
 };
 
-// Ambil data wallet agar dropdown tidak kosong
-onMounted(() => {
-    if (walletStore.wallets.length === 0) {
-        walletStore.getAllWallet(); 
+// --- LOGIC BARU: BUAT KATEGORI ---
+const handleCreateCategory = async () => {
+    // Tampilkan Modal Input Sederhana
+    const { value: categoryName } = await Swal.fire({
+        title: 'Tambah Kategori Baru',
+        text: `Untuk ${formData.type === 'EXPENSE' ? 'Pengeluaran' : 'Pemasukan'}`,
+        input: 'text',
+        inputPlaceholder: 'Contoh: Parkir, Laundry, Bonus',
+        showCancelButton: true,
+        confirmButtonText: 'Simpan',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: formData.type === 'EXPENSE' ? '#dc2626' : '#16a34a', // Merah/Hijau sesuai konteks
+        inputValidator: (value) => {
+            if (!value) {
+                return 'Nama kategori harus diisi!'
+            }
+        }
+    });
+
+    if (categoryName) {
+        // Construct Payload
+        const payload: CreateCategoryPayload = {
+            name: categoryName,
+            type: formData.type,
+        };
+
+        const success = await categoryStore.createCategory(payload);
+        
+        if (success) {
+            // Notifikasi Kecil
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            Toast.fire({
+                icon: 'success',
+                title: 'Kategori berhasil ditambahkan'
+            });
+
+        }
     }
+};
+// ---------------------------------
+
+onMounted(() => {
+    if (walletStore.wallets.length === 0) walletStore.getAllWallet(); 
+    if (!categoryStore.hasCategory) categoryStore.getAllCategory();
 });
 
 async function handleSubmit() {
-    // 1. Validasi Wajib
     if (!formData.accountId || !formData.amount) {
         Swal.fire({
             icon: 'warning',
@@ -72,15 +104,11 @@ async function handleSubmit() {
     try {
         const cleanPayload: CreateTransactionPayload = {
             amount: parseInt(formData.amount.replace(/\./g, '')),
-            
             date: formData.date, 
-            
             description: formData.description || '', 
             type: formData.type,
-            accountId: Number(formData.accountId),
-            
+            accountId: formData.accountId ? Number(formData.accountId) : null as any,
             categoryId: formData.categoryId ? Number(formData.categoryId) : null as any,
-            
             targetAccountId: null as any 
         };
 
@@ -96,33 +124,29 @@ async function handleSubmit() {
             });
             emit('success');
             
-            // Reset form
             formData.amount = '';
             formData.description = '';
             formData.categoryId = ''; 
         }
     } catch (error) {
         console.error(error);
-        // Error handling biasanya sudah ada di store, tapi bisa ditambahkan alert disini
     }
 }
 </script>
 
 <template>
-    <!-- Template HTML Tetap Sama -->
     <div class="w-full">
-        <!-- Error Message -->
         <div v-if="transactionStore.errMsg" class="mb-4 p-3 rounded-lg bg-red-50 border border-red-100 text-red-600 text-sm">
             {{ transactionStore.errMsg }}
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-5">
             
-            <!-- 1. Type Toggle (EXPENSE / INCOME) -->
+            <!-- 1. Type Toggle -->
             <div class="p-1 bg-gray-100 rounded-lg grid grid-cols-2 gap-1">
                 <button 
                     type="button"
-                    @click="formData.type = 'EXPENSE'"
+                    @click="formData.type = 'EXPENSE'; formData.categoryId = ''"
                     class="py-2 text-sm font-semibold rounded-md transition-all flex items-center justify-center gap-2"
                     :class="formData.type === 'EXPENSE' ? 'bg-white text-red-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
                 >
@@ -130,7 +154,7 @@ async function handleSubmit() {
                 </button>
                 <button 
                     type="button"
-                    @click="formData.type = 'INCOME'"
+                    @click="formData.type = 'INCOME'; formData.categoryId = ''"
                     class="py-2 text-sm font-semibold rounded-md transition-all flex items-center justify-center gap-2"
                     :class="formData.type === 'INCOME' ? 'bg-white text-green-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
                 >
@@ -138,7 +162,7 @@ async function handleSubmit() {
                 </button>
             </div>
 
-            <!-- 2. Input Amount (Big) -->
+            <!-- 2. Input Amount -->
             <div>
                 <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Nominal</label>
                 <div class="relative">
@@ -163,34 +187,56 @@ async function handleSubmit() {
 
             <!-- 3. Kategori & Account Grid -->
             <div class="grid grid-cols-2 gap-4">
-                <!-- Kategori -->
+                
+                <!-- Kategori Selection -->
                 <div class="space-y-1.5">
-                    <label class="block text-sm font-semibold text-dark-900">Kategori</label>
+                    <div class="flex items-center justify-between">
+                        <label class="block text-sm font-semibold text-dark-900">Kategori</label>
+                        <!-- Button Tambah Kategori Cepat -->
+                        <button 
+                            type="button" 
+                            @click="handleCreateCategory"
+                            class="text-xs font-bold hover:underline transition-colors"
+                            :class="formData.type === 'EXPENSE' ? 'text-red-600' : 'text-green-600'"
+                        >
+                            + Tambah
+                        </button>
+                    </div>
+                    
                     <div class="relative">
                         <select 
                             v-model="formData.categoryId"
                             required
-                            class="w-full appearance-none px-3 py-2.5 rounded-lg border border-gray-300 text-dark-900 bg-white focus:outline-none focus:ring-2 focus:border-brand-500 transition-all text-sm"
-                            :class="formData.type === 'EXPENSE' ? 'focus:ring-red-100' : 'focus:ring-green-100'"
+                            class="w-full appearance-none px-3 py-2.5 rounded-lg border border-gray-300 text-dark-900 bg-white focus:outline-none focus:ring-2 transition-all text-sm"
+                            :class="formData.type === 'EXPENSE' ? 'focus:border-red-500 focus:ring-red-100' : 'focus:border-green-500 focus:ring-green-100'"
                         >
                             <option value="" disabled selected>Pilih Kategori</option>
                             <option v-for="cat in categories" :key="cat.id" :value="cat.id">
-                                {{ cat.icon }} {{ cat.name }}
+                                {{ (cat as any).icon || '' }} {{ cat.name }}
                             </option>
                         </select>
                         <ChevronDown class="w-4 h-4 text-gray-400 absolute right-3 top-3 pointer-events-none" />
                     </div>
+                    
+                    <!-- Helper Text jika kategori kosong -->
+                    <p v-if="categories.length === 0" class="text-xs text-gray-400">
+                        Belum ada kategori. Klik "+ Tambah" diatas.
+                    </p>
                 </div>
 
-                <!-- Account / Wallet -->
+                <!-- Account / Wallet Selection -->
                 <div class="space-y-1.5">
-                    <label class="block text-sm font-semibold text-dark-900">Dari Dompet</label>
+                    <!-- Spacer label agar sejajar dengan label kategori yang ada button-nya -->
+                    <div class="flex items-center justify-between h-[20px]"> 
+                        <label class="block text-sm font-semibold text-dark-900">Dari Dompet</label>
+                    </div>
+                    
                     <div class="relative">
                         <select 
                             v-model="formData.accountId"
                             required
-                            class="w-full appearance-none px-3 py-2.5 rounded-lg border border-gray-300 text-dark-900 bg-white focus:outline-none focus:ring-2 focus:border-brand-500 transition-all text-sm"
-                            :class="formData.type === 'EXPENSE' ? 'focus:ring-red-100' : 'focus:ring-green-100'"
+                            class="w-full appearance-none px-3 py-2.5 rounded-lg border border-gray-300 text-dark-900 bg-white focus:outline-none focus:ring-2 transition-all text-sm"
+                            :class="formData.type === 'EXPENSE' ? 'focus:border-red-500 focus:ring-red-100' : 'focus:border-green-500 focus:ring-green-100'"
                         >
                             <option value="" disabled selected>Pilih Dompet</option>
                             <option v-for="wallet in walletStore.wallets" :key="wallet.id" :value="wallet.id">
