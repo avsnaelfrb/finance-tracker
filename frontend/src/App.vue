@@ -4,6 +4,7 @@ import { computed, onMounted } from 'vue';
 import { RouterView, useRoute } from 'vue-router'
 import DefaultLayout from './layouts/DefaultLayout.vue';
 import AuthLayout from './layouts/AuthLayout.vue';
+import WizardLayout from './layouts/WizardLayout.vue';
 
 const auth = useAuthStore()
 const route = useRoute()
@@ -14,7 +15,8 @@ onMounted(() => {
 
 const layouts: Record<string, any>  = {
   DefaultLayout,
-  AuthLayout
+  AuthLayout,
+  WizardLayout
 }
 
 const currentLayout = computed(() => {
