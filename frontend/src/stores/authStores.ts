@@ -1,4 +1,5 @@
 import instance from "@/services/api";
+import type { RegisterUserPayload } from "@/types/globalTypes";
 import { defineStore } from "pinia";
 import { computed, ref } from "vue";
 
@@ -34,10 +35,16 @@ export const useAuthStore = defineStore( 'auth', () => {
         }
     }
 
-    async function registerUser(payload: any) {
+    async function registerUser(payload: RegisterUserPayload) {
         isLoading.value = true
         try {
-            await instance.post('/user/register', payload)
+            const response = await instance.post('/user/register', payload)
+            token.value = response.data.data.token
+            dataUser.value = {
+                name: payload.name,
+                email: payload.email
+            }
+            localStorage.setItem('token', token.value)
             return true
         } catch (error) {
             throw error
