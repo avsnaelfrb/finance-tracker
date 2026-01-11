@@ -77,7 +77,7 @@ export const createTransactionService = async (data: CreateTransactionDTO, userI
                 .where(eq(accounts.id, data.targetAccountId));
         
         } else {
-             throw new AppError('Tipe transaksi tidak valid', 400);
+            throw new AppError('Tipe transaksi tidak valid', 400);
         }
 
         // --- STEP C: Update Akun Asal (Berlaku untuk Income, Expense, & Transfer) ---
