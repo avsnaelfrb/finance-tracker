@@ -37,6 +37,14 @@ const router = createRouter({
       meta: {
         layout: 'DefaultLayout',
       }
+    },
+    {
+      path: '/set-up-first-wallet',
+      name: 'first-wallet-page',
+      component: () => import('@/views/CreateFirstWalletView.vue'),
+      meta: {
+        layout: 'WizardLayout'
+      }
     }
   ],
 })
