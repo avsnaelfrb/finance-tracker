@@ -92,7 +92,7 @@ const handleSuccessCreate = () => {
             <div 
                 v-for="wallet in walletStore.wallets" 
                 :key="wallet.id"
-                class="card-base group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-gray-800 dark:hover:bg-dark-800"
+                class="card-base group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-gray-800 dark:hover:bg-dark-900"
             >
                 <!-- Dekorasi Background (Icon Besar Transparan) -->
                 <div class="absolute -bottom-4 -right-4 p-4 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-10 transition-opacity pointer-events-none transform rotate-12">
