@@ -37,9 +37,7 @@ const handleAmountInput = (event: Event) => {
     formData.amount = formatNumber(target.value);
 };
 
-// --- LOGIC BARU: BUAT KATEGORI ---
 const handleCreateCategory = async () => {
-    // Tampilkan Modal Input Sederhana
     const { value: categoryName } = await Swal.fire({
         title: 'Tambah Kategori Baru',
         text: `Untuk ${formData.type === 'EXPENSE' ? 'Pengeluaran' : 'Pemasukan'}`,
@@ -48,7 +46,7 @@ const handleCreateCategory = async () => {
         showCancelButton: true,
         confirmButtonText: 'Simpan',
         cancelButtonText: 'Batal',
-        confirmButtonColor: formData.type === 'EXPENSE' ? '#dc2626' : '#16a34a', // Merah/Hijau sesuai konteks
+        confirmButtonColor: formData.type === 'EXPENSE' ? '#dc2626' : '#16a34a', 
         inputValidator: (value) => {
             if (!value) {
                 return 'Nama kategori harus diisi!'
@@ -57,7 +55,6 @@ const handleCreateCategory = async () => {
     });
 
     if (categoryName) {
-        // Construct Payload
         const payload: CreateCategoryPayload = {
             name: categoryName,
             type: formData.type,
@@ -66,7 +63,6 @@ const handleCreateCategory = async () => {
         const success = await categoryStore.createCategory(payload);
         
         if (success) {
-            // Notifikasi Kecil
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'top-end',
@@ -82,7 +78,6 @@ const handleCreateCategory = async () => {
         }
     }
 };
-// ---------------------------------
 
 onMounted(() => {
     if (walletStore.wallets.length === 0) walletStore.getAllWallet(); 
@@ -143,8 +138,7 @@ async function handleSubmit() {
 
         <form @submit.prevent="handleSubmit" class="space-y-6">
             
-            <!-- 1. Type Toggle (Modern Segmented Control) -->
-            <!-- Menggunakan bg-white/5 untuk dark mode agar tidak terlalu kontras -->
+            <!-- 1. Type Toggle -->
             <div class="p-1.5 bg-gray-100 dark:bg-white/5 rounded-xl grid grid-cols-2 gap-1">
                 <button 
                     type="button"
@@ -164,7 +158,7 @@ async function handleSubmit() {
                 </button>
             </div>
 
-            <!-- 2. Input Amount (Large & Clean) -->
+            <!-- 2. Input Amount -->
             <div class="space-y-2">
                 <label class="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Nominal Transaksi</label>
                 <div class="relative group">

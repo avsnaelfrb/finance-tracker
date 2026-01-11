@@ -70,17 +70,19 @@ export const registerService = async (data: userReq) => {
 
         ])
 
+        const payload = { id: newUser[0].insertId, name: data.name }
+        const secret = process.env.JWT_SECRET!
+        const token = jwt.sign(payload, secret, { expiresIn: '1d' })
         return {
             id: newUser[0].insertId,
-            email: data.email,
-            name: data.name
+            token,
         }
     })
 
     const insertId = result.id;
     const [newUser] = await db.select().from(users).where(eq(users.id, insertId)).limit(1)
 
-    return newUser;
+    return { newUser, token: result.token };
 }
 
 export const loginService = async (data: userReq) => {
@@ -104,7 +106,7 @@ export const loginService = async (data: userReq) => {
         throw new AppError('Passowrd atau Email salah', 400)
     }
 
-    const payload = { id: user.id, role: user.role }
+    const payload = { id: user.id, name: user.name }
     const secret = process.env.JWT_SECRET!
     const token = jwt.sign(payload, secret, { expiresIn: '1d' })
     
