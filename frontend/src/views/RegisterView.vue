@@ -31,19 +31,22 @@ const handleRegister = async () => {
   try {
     await auth.registerUser(formData)
 
-  const Toast = Swal.mixin({
-    toast: true,
-    position: 'top-end',
-    showConfirmButton: false,
-    timer: 3000,
-    timerProgressBar: true,
-  })
-  
-  Toast.fire({
-    icon: 'success',
-    title: 'Berhasil registrasi, silahkan login'
-  })
-    router.push('/login')
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+    })
+    
+    Toast.fire({
+      icon: 'success',
+      title: 'Berhasil registrasi, silahkan login'
+    })
+
+    if (auth.isLoggedIn === true) {
+      router.push('/dashboard')
+    }
     
   } catch (error: any) {
     errMsg.value = error.response?.data?.message || error.message || 'Gagal mendaftar. Silakan coba lagi.'
