@@ -7,6 +7,11 @@ export interface User {
   updatedAt: string;
 }
 
+export interface RegisterUserPayload {
+  name: string,
+  email: string,
+  password: string,
+}
 // Enum untuk tipe Wallet (berdasarkan pgEnum di schema.ts)
 export type WalletType = 'CASH' | 'BANK' | 'WALLET' | 'CREDIT_CARD';
 
