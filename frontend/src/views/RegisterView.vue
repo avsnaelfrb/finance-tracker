@@ -45,7 +45,7 @@ const handleRegister = async () => {
     })
 
     if (auth.isLoggedIn === true) {
-      router.push('/dashboard')
+      router.push('/set-up-first-wallet')
     }
     
   } catch (error: any) {
