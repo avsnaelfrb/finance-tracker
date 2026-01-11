@@ -224,7 +224,7 @@
                 <div class="flex items-center gap-3">
                     <button 
                         @click="toggleTheme" 
-                        class="p-2.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 transition-all border border-transparent hover:border-gray-200 dark:hover:border-white/10"
+                        class="p-2.5 rounded-xl hover:text-brand-600 text-gray-500 hover:bg-brand-50 dark:text-gray-400 dark:hover:bg-brand-500/10 transition-all border border-transparent hover:border-brand-200 dark:hover:border-brand-200"
                     >
                         <Sun v-if="!isDark" class="w-5 h-5" />
                         <Moon v-else class="w-5 h-5" />
@@ -235,7 +235,7 @@
                         <span class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-dark-800"></span>
                     </button>
     
-                    <button class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-brand-400 dark:hover:bg-white/5 rounded-xl transition-all">
+                    <button class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-600 hover:text-brand-600 hover:bg-brand-50 dark:text-gray-400 dark:hover:text-brand-400 dark:hover:bg-brand-500/10 rounded-xl transition-all">
                         <HelpCircle class="w-4 h-4" />
                         <span>Bantuan</span>
                     </button>

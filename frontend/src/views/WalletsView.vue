@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useWalletStore } from '@/stores/walletStore';
-import { type CreateWalletPayload, type WalletType } from '@/types/globalTypes';
-import { CreditCard, Landmark, Plus, Smartphone, Wallet, WalletCards, X } from 'lucide-vue-next';
-import { reactive, ref } from 'vue';
+import { type WalletType } from '@/types/globalTypes';
+import { CreditCard, Landmark, Plus, Smartphone, Wallet, WalletCards, X, MoreVertical } from 'lucide-vue-next';
+import { ref } from 'vue';
 import CreateWalletForm from '@/components/WalletFormComponent.vue'
 
 const walletStore = useWalletStore()
@@ -25,96 +25,64 @@ const getIcon = (type: WalletType) => {
     }
 };
 
+// Update: Menambahkan support dark mode untuk background icon
 const getIconColorClass = (type: WalletType) => {
     switch(type) {
-        case 'BANK': return 'bg-blue-100 text-blue-600';
-        case 'CREDIT_CARD': return 'bg-purple-100 text-purple-600';
-        case 'WALLET': return 'bg-orange-100 text-orange-600';
-        default: return 'bg-brand-100 text-brand-600'; // cash
+        case 'BANK': return 'bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400';
+        case 'CREDIT_CARD': return 'bg-purple-100 text-purple-600 dark:bg-purple-500/10 dark:text-purple-400';
+        case 'WALLET': return 'bg-orange-100 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400';
+        default: return 'bg-brand-100 text-brand-600 dark:bg-brand-500/10 dark:text-brand-400'; // cash
     }
 };
 
-// async function handleCreate() {
-//     if (!formWallet.name) {
-//         Swal.fire('Error', 'Nama dompet harus diisi', 'error');
-//         return;
-//     }
-
-//     const cleanedBalance = formWallet.balance.toString().replace(/\./g, '').replace(",", ".")
-//     const payload = {
-//         ...formWallet,
-//         balance : cleanedBalance
-//     }
-//     const isSuccess = await walletStore.createWallet(payload);
-
-//     if (isSuccess) {
-//         Swal.fire({
-//             icon: "success",
-//             title: 'Berhasil',
-//             text: "Dompet berhasil dibuat",
-//             timer: 1500,
-//             showConfirmButton: false
-//         });
-//         formWallet.name = '';
-//         formWallet.balance = '';
-//     } else {
-//         Swal.fire({
-//             icon: "error",
-//             title: 'Gagal',
-//             text: walletStore.errMsg || 'Terjadi kesalahan sistem'
-//         });
-//     }
-// }
-
 const handleSuccessCreate = () => {
     showModal.value = false;
-    // walletStore.fetchWallets(); // Refresh data jika perlu
 };
 </script>
 
 <template>
-        <div class="w-full">
+    <div class="w-full max-w-7xl mx-auto animate-fade-in">
         
-        <!-- Header Page -->
-        <div class="flex items-center justify-between mb-8">
+        <!-- 1. Header Page -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
             <div>
-                <h1 class="text-2xl font-bold text-dark-900">Dompet Saya</h1>
-                <p class="text-gray-500 text-sm mt-1">Kelola semua sumber dana Anda di satu tempat.</p>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Dompet Saya</h1>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Kelola semua sumber dana Anda di satu tempat.</p>
             </div>
             
-            <!-- Tombol Tambah (Hanya muncul jika ada data, jika kosong tombol ada di empty state) -->
+            <!-- Tombol Tambah (Muncul jika ada data) -->
             <button 
                 v-if="walletStore.wallets && walletStore.wallets.length > 0"
                 @click="showModal = true"
-                class="flex items-center gap-2 px-4 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-all font-medium shadow-sm"
+                class="btn-primary w-full sm:w-auto shadow-lg shadow-brand-500/20 group"
             >
-                <Plus class="w-5 h-5" />
+                <Plus class="w-5 h-5 transition-transform group-hover:rotate-90" />
                 <span>Tambah Dompet</span>
             </button>
         </div>
 
-        <!-- STATE 1: LOADING (Optional) -->
-        <div v-if="walletStore.isLoading" class="flex justify-center py-12">
-            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+        <!-- STATE 1: LOADING -->
+        <div v-if="walletStore.isLoading" class="flex justify-center py-20">
+            <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-600 dark:border-brand-400"></div>
         </div>
 
-        <!-- STATE 2: EMPTY STATE (Jika belum ada wallet) -->
+        <!-- STATE 2: EMPTY STATE -->
         <div 
             v-else-if="!walletStore.hasWallet" 
-            class="flex flex-col items-center justify-center py-16 bg-white rounded-xl border border-dashed border-gray-300 text-center"
+            class="flex flex-col items-center justify-center py-20 bg-white dark:bg-dark-800 rounded-2xl border border-dashed border-gray-300 dark:border-white/10 text-center transition-colors"
         >
-            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                <WalletCards class="w-8 h-8 text-gray-400" />
+            <div class="w-20 h-20 bg-gray-50 dark:bg-dark-700/50 rounded-full flex items-center justify-center mb-6">
+                <WalletCards class="w-10 h-10 text-gray-400 dark:text-gray-500" />
             </div>
-            <h3 class="text-lg font-bold text-dark-900 mb-2">Belum ada dompet</h3>
-            <p class="text-gray-500 max-w-sm mb-6">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">Belum ada dompet</h3>
+            <p class="text-gray-500 dark:text-gray-400 max-w-sm mb-8 text-sm leading-relaxed">
                 Anda belum memiliki akun dompet. Tambahkan dompet pertama Anda untuk mulai mencatat keuangan.
             </p>
             <button 
                 @click="showModal = true"
-                class="flex items-center gap-2 px-6 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-all font-semibold shadow-lg shadow-brand-500/20"
+                class="btn-primary shadow-lg shadow-brand-500/20 group"
             >
-                <Plus class="w-5 h-5" />
+                <Plus class="w-5 h-5 transition-transform group-hover:rotate-90" />
                 Buat Dompet Baru
             </button>
         </div>
@@ -124,36 +92,40 @@ const handleSuccessCreate = () => {
             <div 
                 v-for="wallet in walletStore.wallets" 
                 :key="wallet.id"
-                class="group bg-white p-6 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                class="card-base group relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl dark:hover:shadow-gray-900 dark:hover:bg-dark-800"
             >
-                <!-- Dekorasi Background -->
-                <div class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-                    <component :is="getIcon(wallet.type)" class="w-24 h-24" />
+                <!-- Dekorasi Background (Icon Besar Transparan) -->
+                <div class="absolute -bottom-4 -right-4 p-4 opacity-[0.03] dark:opacity-[0.05] group-hover:opacity-10 transition-opacity pointer-events-none transform rotate-12">
+                    <component :is="getIcon(wallet.type)" class="w-32 h-32" />
                 </div>
 
-                <div class="relative z-10">
-                    <div class="flex items-start justify-between mb-4">
+                <div class="relative z-10 flex flex-col h-full justify-between">
+                    <!-- Top Section: Icon & Menu -->
+                    <div class="flex items-start justify-between mb-6">
                         <!-- Icon Type -->
-                        <div class="p-3 rounded-xl" :class="getIconColorClass(wallet.type)">
+                        <div class="p-3.5 rounded-2xl transition-colors" :class="getIconColorClass(wallet.type)">
                             <component :is="getIcon(wallet.type)" class="w-6 h-6" />
                         </div>
-                        <!-- Menu dots (Optional) -->
-                        <button class="text-gray-400 hover:text-dark-900">
-                            <span class="sr-only">Menu</span>
-                            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                            </svg>
+                        
+                        <!-- Menu dots (Optional Future Feature) -->
+                        <button class="p-2 -mr-2 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                            <MoreVertical class="w-5 h-5" />
                         </button>
                     </div>
 
+                    <!-- Bottom Section: Info -->
                     <div>
-                        <p class="text-sm font-medium text-gray-500 mb-1 capitalize">
-                            {{ wallet.type.replace('_', ' ') }}
-                        </p>
-                        <h3 class="text-lg font-bold text-dark-900 mb-2 truncate">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-white/5 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                {{ wallet.type.replace('_', ' ') }}
+                            </span>
+                        </div>
+                        
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 truncate" :title="wallet.name">
                             {{ wallet.name }}
                         </h3>
-                        <p class="text-xl font-bold text-brand-600 font-sans tracking-tight">
+                        
+                        <p class="text-2xl font-bold text-brand-600 dark:text-brand-400 font-sans tracking-tight truncate" :title="formatRupiah(wallet.balance)">
                             {{ formatRupiah(wallet.balance) }}
                         </p>
                     </div>
@@ -163,22 +135,26 @@ const handleSuccessCreate = () => {
 
         <!-- MODAL -->
         <transition name="fade">
-            <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div v-if="showModal" class="fixed inset-0 z-[60] flex items-center justify-center p-4">
                 <!-- Backdrop -->
-                <div class="absolute inset-0 bg-dark-900/60 backdrop-blur-sm" @click="showModal = false"></div>
+                <div class="absolute inset-0 bg-gray-900/60 dark:bg-black/80 backdrop-blur-sm transition-opacity" @click="showModal = false"></div>
                 
                 <!-- Modal Content -->
-                <div class="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all">
+                <div class="relative w-full max-w-lg bg-white dark:bg-dark-800 rounded-2xl shadow-2xl overflow-hidden transform transition-all flex flex-col max-h-[90vh] border border-gray-100 dark:border-white/10">
+                    
                     <!-- Modal Header -->
-                    <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white">
-                        <h3 class="text-lg font-bold text-dark-900">Buat Dompet Baru</h3>
-                        <button @click="showModal = false" class="p-1 rounded-full hover:bg-gray-100 text-gray-500">
+                    <div class="px-6 py-4 border-b border-gray-100 dark:border-white/5 flex items-center justify-between bg-white dark:bg-dark-800 shrink-0">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Buat Dompet Baru</h3>
+                        <button 
+                            @click="showModal = false" 
+                            class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 dark:text-gray-400 transition-colors"
+                        >
                             <X class="w-5 h-5" />
                         </button>
                     </div>
 
-                    <!-- Modal Body (Load Form Component) -->
-                    <div class="p-6">
+                    <!-- Modal Body -->
+                    <div class="p-6 overflow-y-auto custom-scrollbar">
                         <CreateWalletForm 
                             @close="showModal = false" 
                             @success="handleSuccessCreate" 
@@ -192,7 +168,10 @@ const handleSuccessCreate = () => {
 </template>
 
 <style scoped>
-/* Transition for Modal */
+.animate-fade-in { animation: fadeIn 0.5s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Transition for Modal & Fade elements */
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.2s ease;
@@ -202,4 +181,9 @@ const handleSuccessCreate = () => {
 .fade-leave-to {
     opacity: 0;
 }
+
+/* Custom Scrollbar for Modal */
+.custom-scrollbar::-webkit-scrollbar { width: 6px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(156, 163, 175, 0.5); border-radius: 20px; }
 </style>
