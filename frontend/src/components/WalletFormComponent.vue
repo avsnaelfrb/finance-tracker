@@ -4,7 +4,6 @@ import { type CreateWalletPayload, type WalletType } from '@/types/globalTypes';
 import Swal from 'sweetalert2';
 import { reactive, ref } from 'vue';
 
-// Define Emits untuk komunikasi ke parent (Modal)
 const emit = defineEmits(['close', 'success']);
     
 const optionType: WalletType[] = [
@@ -19,14 +18,12 @@ const formWallet = reactive<CreateWalletPayload>({
 
 const walletStore = useWalletStore()
 
-// Helper untuk format angka saat mengetik (opsional, visual only)
 const formatNumber = (n: string) => {
     return n.replace(/\D/g, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 }
 
 const handleBalanceInput = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    // Format value langsung saat diketik
     formWallet.balance = formatNumber(target.value);
 }
 
