@@ -1,6 +1,6 @@
 import { eq, ne } from "drizzle-orm";
 import { db } from "../config/dbConfig.js";
-import { users } from "../models/schema.js";
+import { categories, users } from "../models/schema.js";
 import AppError from "../utils/appError.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken"
@@ -39,13 +39,45 @@ export const registerService = async (data: userReq) => {
     const salt = await bcrypt.genSalt(10)
     const hashedPassword = await bcrypt.hash(data.password, salt)
 
-    const result = await db.insert(users).values({
-        name: data.name,
-        email: data.email,
-        password: hashedPassword,
+    const result = await db.transaction(async (tx) => {
+        const newUser = await tx.insert(users).values({
+            name: data.name,
+            email: data.email,
+            password: hashedPassword,
+        })
+
+        await tx.insert(categories).values([
+            {
+                name: 'Makan',
+                type: 'EXPENSE',
+                userId: newUser[0].insertId
+            },
+            {
+                name: 'Transport',
+                type: 'EXPENSE',
+                userId: newUser[0].insertId
+            },
+            {
+                name: 'Gaji',
+                type: 'EXPENSE',
+                userId: newUser[0].insertId
+            },
+            {
+                name: 'Belanja',
+                type: 'EXPENSE',
+                userId: newUser[0].insertId
+            },
+
+        ])
+
+        return {
+            id: newUser[0].insertId,
+            email: data.email,
+            name: data.name
+        }
     })
 
-    const insertId = result[0].insertId;
+    const insertId = result.id;
     const [newUser] = await db.select().from(users).where(eq(users.id, insertId)).limit(1)
 
     return newUser;
