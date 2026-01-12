@@ -3,9 +3,13 @@ import { useWalletStore } from '@/stores/walletStore';
 import { type CreateWalletPayload, type WalletType } from '@/types/globalTypes';
 import Swal from 'sweetalert2';
 import { reactive, ref } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 const emit = defineEmits(['close', 'success']);
-    
+const route = useRoute()
+const router = useRouter()
+const routePath = '/set-up-first-wallet'
+
 const optionType: WalletType[] = [
     'CASH', 'BANK', 'CREDIT_CARD', 'WALLET'
 ]
@@ -56,6 +60,10 @@ async function handleCreate() {
             title: 'Gagal',
             text: walletStore.errMsg || 'Terjadi kesalahan sistem'
         });
+    }
+
+    if (isSuccess && route.path === routePath) {
+        router.push('/dashboard')
     }
 }
 </script>
@@ -114,7 +122,7 @@ async function handleCreate() {
                         type="text"
                         inputmode="numeric"
                         placeholder="0"
-                        class="w-full pl-10 py-2 text-4xl font-bold bg-transparent border-none focus:ring-0 placeholder:text-gray-300 dark:placeholder:text-gray-700 font-sans transition-colors text-gray-900 dark:text-white"
+                        class="w-full pl-10 py-2 text-4xl font-bold bg-transparent border-none focus:ring-0 focus:outline-none focus:border-none placeholder:text-gray-300 dark:placeholder:text-gray-700 font-sans transition-colors text-gray-900 dark:text-white"
                         required
                     />
                 </div>
