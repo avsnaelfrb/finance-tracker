@@ -41,11 +41,13 @@ const handleRegister = async () => {
     
     Toast.fire({
       icon: 'success',
-      title: 'Berhasil registrasi, silahkan login'
+      title: 'Berhasil registrasi'
     })
 
     if (auth.isLoggedIn === true) {
-      router.push('/set-up-first-wallet')
+      setTimeout(() => {
+        router.push('/set-up-first-wallet')
+      }, 100)
     }
     
   } catch (error: any) {
