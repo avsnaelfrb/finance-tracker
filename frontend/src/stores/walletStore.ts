@@ -23,7 +23,10 @@ export const useWalletStore = defineStore('wallets', () => {
             const response = await instance.post < ApiResponse<Wallet>>('/wallet/add-wallet', apiPayload)
             const serverResponse = response.data
 
-            await getAllWallet()
+            if (hasWallet) {
+                await getAllWallet()
+            }
+            
             console.log(serverResponse.message);
             return true
         } catch (error: any) {
