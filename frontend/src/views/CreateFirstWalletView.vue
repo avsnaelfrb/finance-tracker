@@ -1,10 +1,29 @@
 <script setup lang="ts">
 import CreateWalletForm from '@/components/WalletFormComponent.vue'
+import { useRoute, useRouter } from 'vue-router';
+
+const router = useRouter()
+const route = useRoute()
+const routePath = '/set-up-first-wallet'
+
+const handleCancelCreate = () => {
+    setTimeout(() => {
+        router.back()
+    })
+}
+
+const handleSuccessCreate = () => {
+    if (route.path === routePath) {
+        setTimeout(() => {
+            router.push('/dashboard')
+        }, 1000)
+    }
+}
 </script>
 
 <template>
     <div class="animate-fade-in">
-        <CreateWalletForm/>
+        <CreateWalletForm @close="handleCancelCreate" @success="handleSuccessCreate"/>
     </div>
 </template>
 
