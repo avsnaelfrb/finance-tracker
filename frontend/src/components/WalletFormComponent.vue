@@ -8,7 +8,6 @@ import { useRoute, useRouter } from 'vue-router';
 const emit = defineEmits(['close', 'success']);
 const route = useRoute()
 const router = useRouter()
-const routePath = '/set-up-first-wallet'
 
 const optionType: WalletType[] = [
     'CASH', 'BANK', 'CREDIT_CARD', 'WALLET'
@@ -60,10 +59,6 @@ async function handleCreate() {
             title: 'Gagal',
             text: walletStore.errMsg || 'Terjadi kesalahan sistem'
         });
-    }
-
-    if (isSuccess && route.path === routePath) {
-        router.push('/dashboard')
     }
 }
 </script>
@@ -137,7 +132,8 @@ async function handleCreate() {
                     @click="$emit('close')"
                     class="flex-1 px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
                 >
-                    Batal
+                    <span v-if="route.path === '/set-up-first-wallet'">Skip</span>
+                    <span v-else>Batal</span>
                 </button>
                 <button 
                     type="submit" 
